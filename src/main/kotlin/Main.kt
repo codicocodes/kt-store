@@ -16,25 +16,18 @@ fun main() = runBlocking {
     Server(ServerOptions(), Handler(cache)).start()
 }
 
-class Handler (private val cache: Cacher) : SimpleRoute(),
-        IExchangeIdReader by ExchangeIdReader(),
-        IExchangeDataReader by ExchangeDataReader()
-{
-    override fun get(exchange: HttpExchange): Response {
-        val id = exchange.readID()
+class Handler(private val cache: Cacher) : SimpleCrudRoute() {
+    override fun detail(exchange: HttpExchange, id: String): Response {
         val value = cache.get(id) ?: throw NotFound()
         return OK(value.toUtf8String())
     }
 
-    override fun post(exchange: HttpExchange): Response {
-        val id = exchange.readID()
-        val data = exchange.readData()
+    override fun update(exchange: HttpExchange, id: String, data: ByteArray): Response {
         cache.put(id, data)
         return OK(data.toUtf8String())
     }
 
-    override fun delete(exchange: HttpExchange): Response {
-        val id = exchange.readID()
+    override fun delete(exchange: HttpExchange, id: String): Response {
         val value = cache.delete(id) ?: throw NotFound()
         return OK(value.toUtf8String())
     }
