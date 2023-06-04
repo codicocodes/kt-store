@@ -7,12 +7,7 @@ import kotlinx.coroutines.runBlocking
 
 import cache.Cache
 import cache.Cacher
-import server.Server
-import server.ServerOptions
-import server.NotFound
-import server.OK
-import server.Response
-import server.SimpleRoute
+import server.*
 
 
 fun main() = runBlocking {
@@ -21,35 +16,30 @@ fun main() = runBlocking {
     Server(ServerOptions(), Handler(cache)).start()
 }
 
-class Handler (private val cache: Cacher) : SimpleRoute() {
+class Handler (private val cache: Cacher) : SimpleRoute(),
+        IExchangeIdReader by ExchangeIdReader(),
+        IExchangeDataReader by ExchangeDataReader()
+{
     override fun get(exchange: HttpExchange): Response {
-        val id = exchange.getKey()
+        val id = exchange.readID()
         val value = cache.get(id) ?: throw NotFound()
         return OK(value.toUtf8String())
     }
 
     override fun post(exchange: HttpExchange): Response {
-        val id = exchange.getKey()
+        val id = exchange.readID()
         val data = exchange.readData()
         cache.put(id, data)
         return OK(data.toUtf8String())
     }
 
     override fun delete(exchange: HttpExchange): Response {
-        val id = exchange.getKey()
+        val id = exchange.readID()
         val value = cache.delete(id) ?: throw NotFound()
         return OK(value.toUtf8String())
     }
 
     private fun ByteArray.toUtf8String(): String {
         return toString(Charset.defaultCharset())
-    }
-
-    private fun HttpExchange.readData(): ByteArray {
-        return requestBody.readAllBytes()
-    }
-
-    private fun HttpExchange.getKey(): String {
-        return requestURI.path.split("/")[1]
     }
 }

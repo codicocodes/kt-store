@@ -29,13 +29,17 @@ class Cache(private val ttl: Long = 0, private val ttlIntervalMs: Long = 1000) :
     suspend fun checkTTL() {
         while (shouldCheckTTL) {
             delay(ttlIntervalMs)
-            val now = LocalDateTime.now()
             for (entry in times.entries.iterator()) {
-                val timeInCacheMs = ChronoUnit.MILLIS.between(entry.value, now)
-                if (timeInCacheMs > ttl) {
+                if (shouldClearEntry(entry)) {
                     delete(entry.key)
                 }
             }
         }
+    }
+
+    private fun shouldClearEntry(entry: MutableMap.MutableEntry<String, LocalDateTime>): Boolean {
+        val now = LocalDateTime.now()
+        val timeInCacheMs = ChronoUnit.MILLIS.between(entry.value, now)
+        return timeInCacheMs > ttl
     }
 }

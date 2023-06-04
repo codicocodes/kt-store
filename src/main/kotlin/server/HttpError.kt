@@ -10,6 +10,11 @@ abstract class HTTPError() : Exception(), Response {
     }
 }
 
+class BadRequest : HTTPError() {
+    override val message = "Bad request"
+    override val code = 400
+}
+
 class NotFound : HTTPError() {
     override val message = "Not found"
     override val code = 404
