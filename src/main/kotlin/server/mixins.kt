@@ -10,7 +10,6 @@ class ExchangeDataReader : IExchangeDataReader {
     override fun HttpExchange.readData(): ByteArray {
         return requestBody.readAllBytes()
     }
-
 }
 
 interface IExchangeIdReader {

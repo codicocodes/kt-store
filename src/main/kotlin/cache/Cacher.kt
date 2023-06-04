@@ -1,7 +1,7 @@
 package cache
 
 interface Cacher {
-    fun get(key: String): ByteArray?
-    fun put(key: String, value: ByteArray)
-    fun delete(key: String): ByteArray?
+    suspend fun get(key: String): ByteArray?
+    suspend fun put(key: String, value: ByteArray)
+    suspend fun delete(key: String): ByteArray?
 }

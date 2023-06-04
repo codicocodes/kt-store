@@ -17,19 +17,19 @@ fun main() = runBlocking {
 }
 
 class Handler(private val cache: Cacher) : SimpleCrudRoute() {
-    override fun detail(exchange: HttpExchange, id: String): Response {
+    override fun detail(exchange: HttpExchange, id: String): Response = runBlocking {
         val value = cache.get(id) ?: throw NotFound()
-        return OK(value.toUtf8String())
+        return@runBlocking OK(value.toUtf8String())
     }
 
-    override fun update(exchange: HttpExchange, id: String, data: ByteArray): Response {
+    override fun update(exchange: HttpExchange, id: String, data: ByteArray): Response = runBlocking {
         cache.put(id, data)
-        return OK(data.toUtf8String())
+        return@runBlocking OK(data.toUtf8String())
     }
 
-    override fun delete(exchange: HttpExchange, id: String): Response {
+    override fun delete(exchange: HttpExchange, id: String): Response = runBlocking {
         val value = cache.delete(id) ?: throw NotFound()
-        return OK(value.toUtf8String())
+        return@runBlocking OK(value.toUtf8String())
     }
 
     private fun ByteArray.toUtf8String(): String {
