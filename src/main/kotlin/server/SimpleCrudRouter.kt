@@ -2,15 +2,16 @@ package server
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import kotlinx.coroutines.runBlocking
 
 open class SimpleCrudRoute: HttpHandler,
     IExchangeIdReader by ExchangeIdReader(),
     IExchangeDataReader by ExchangeDataReader() {
-    override fun handle(exchange: HttpExchange) {
-        this.runHandler(exchange).send(exchange)
+    override fun handle(exchange: HttpExchange) = runBlocking {
+        runHandler(exchange).send(exchange)
     }
 
-    private fun runHandler(exchange: HttpExchange): Response {
+    private suspend fun runHandler(exchange: HttpExchange): Response {
         return try {
             this.routeRequest(exchange)
         } catch (error: HTTPError) {
@@ -20,21 +21,21 @@ open class SimpleCrudRoute: HttpHandler,
         }
     }
 
-    private fun routeRequest(exchange: HttpExchange): Response {
+    private suspend fun routeRequest(exchange: HttpExchange): Response {
         return when (exchange.requestMethod) {
-            HttpMethod.GET -> this.routeGet(exchange)
-            HttpMethod.POST -> this.runCreate(exchange)
-            HttpMethod.PUT -> this.runUpdate(exchange)
-            HttpMethod.DELETE -> this.runDelete(exchange)
+            HttpMethod.GET -> routeGet(exchange)
+            HttpMethod.POST -> runCreate(exchange)
+            HttpMethod.PUT -> runUpdate(exchange)
+            HttpMethod.DELETE -> runDelete(exchange)
             else -> throw MethodNotAllowed()
         }
     }
 
-    private fun runCreate(exchange: HttpExchange): Response {
+    private suspend fun runCreate(exchange: HttpExchange): Response {
         val data = exchange.readData()
         return create(exchange, data)
     }
-    private fun routeGet(exchange: HttpExchange): Response {
+    private suspend fun routeGet(exchange: HttpExchange): Response {
         return try {
             val id = exchange.readID()
             detail(exchange, id)
@@ -43,35 +44,35 @@ open class SimpleCrudRoute: HttpHandler,
         }
     }
 
-    private fun runUpdate(exchange: HttpExchange): Response {
+    private suspend fun runUpdate(exchange: HttpExchange): Response {
         val id = exchange.readID()
         val data = exchange.readData()
         return update(exchange, id, data)
     }
 
-    open fun runDelete(exchange: HttpExchange): Response {
+    open suspend fun runDelete(exchange: HttpExchange): Response {
         val id = exchange.readID()
         return delete(exchange, id)
     }
 
-    open fun create(exchange: HttpExchange, data: ByteArray): Response {
+    open suspend fun create(exchange: HttpExchange, data: ByteArray): Response {
         throw MethodNotAllowed()
     }
 
 
-    open fun detail(exchange: HttpExchange, id: String): Response {
+    open suspend fun detail(exchange: HttpExchange, id: String): Response {
         throw MethodNotAllowed()
     }
 
-    open fun list(exchange: HttpExchange): Response {
+    open suspend fun list(exchange: HttpExchange): Response {
         throw MethodNotAllowed()
     }
 
-    open fun update(exchange: HttpExchange, id: String, data: ByteArray): Response {
+    open suspend fun update(exchange: HttpExchange, id: String, data: ByteArray): Response {
         throw MethodNotAllowed()
     }
 
-    open fun delete(exchange: HttpExchange, id: String): Response {
+    open suspend fun delete(exchange: HttpExchange, id: String): Response {
         throw MethodNotAllowed()
     }
 }
