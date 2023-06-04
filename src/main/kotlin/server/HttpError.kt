@@ -2,13 +2,6 @@ package server
 
 import com.sun.net.httpserver.HttpExchange
 
-class ResponseSender : Response {
-    override fun send(exchange: HttpExchange) {
-
-    }
-
-}
-
 abstract class HTTPError() : Exception(), Response {
     abstract override val message: String
     abstract val code: Int
@@ -34,4 +27,3 @@ class InternalServerError(val error: Exception) : HTTPError() {
     override val message = "Internal server error"
     override val code = 500
 }
-
