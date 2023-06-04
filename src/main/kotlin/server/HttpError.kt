@@ -6,10 +6,7 @@ abstract class HTTPError() : Exception(), Response {
     abstract override val message: String
     abstract val code: Int
     override fun send(exchange: HttpExchange) {
-        exchange.sendResponseHeaders(this.code, message.length.toLong())
-        val os = exchange.responseBody
-        os.write(message.toByteArray())
-        os.close()
+        return TextResponse(message, code).send(exchange)
     }
 }
 

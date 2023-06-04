@@ -6,8 +6,7 @@ interface Response {
     fun send(exchange: HttpExchange)
 }
 
-abstract class TextResponse (private val message: String) : Response {
-    abstract val code: Int
+open class TextResponse (private val message: String, private val code: Int) : Response {
     override fun send(exchange: HttpExchange) {
         exchange.sendResponseHeaders(code, message.length.toLong())
         val os = exchange.responseBody
@@ -16,6 +15,4 @@ abstract class TextResponse (private val message: String) : Response {
     }
 }
 
-class OK(message: String) : TextResponse(message) {
-    override val code = 200
-}
+class OK(message: String) : TextResponse(message, 200)
