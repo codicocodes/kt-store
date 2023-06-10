@@ -13,7 +13,7 @@ open class SimpleCrudRoute: HttpHandler,
 
     private suspend fun runHandler(exchange: HttpExchange): Response {
         return try {
-            this.routeRequest(exchange)
+            routeRequest(exchange)
         } catch (error: HTTPError) {
             error
         } catch (error: Exception) {
